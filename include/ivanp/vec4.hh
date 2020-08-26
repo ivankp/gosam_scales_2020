@@ -4,11 +4,14 @@
 #include <cmath>
 #include <algorithm>
 #include <numbers>
+#include <limits>
 
 namespace ivanp {
 
+namespace num {
 inline constexpr double pi = std::numbers::pi;
 inline constexpr double twopi = pi*2;
+}
 
 template <typename... T>
 [[ gnu::always_inline ]]
@@ -75,17 +78,17 @@ struct vec3 {
     return a != 0 ? v[2]/a : 1;
   }
   double eta() const noexcept {
-    const auto ct = cos_theta();
+    const double ct = cos_theta();
     if (std::abs(ct) < 1) [[likely]]
       return -0.5*std::log((1-ct)/(1+ct));
     if (v[2] == 0) return 0;
-    if (v[2] > 0) return 10e10;
-    else       return -10e10;
+    if (v[2] >  0) return  std::numeric_limits<double>::infinity();
+    else           return -std::numeric_limits<double>::infinity();
   }
   double phi() const noexcept { return std::atan2(v[1],v[0]); }
 
   vec3& normalize(double n=1) noexcept {
-    const auto c = norm();
+    const double c = norm();
     if (c != 0) [[likely]] (*this) *= n/c;
     return *this;
   }
@@ -94,7 +97,7 @@ struct vec3 {
   }
 
   vec3& rotate_u_z(const vec3& u) noexcept {
-    auto up = sq(u[0],u[1]);
+    double up = sq(u[0],u[1]);
     if (up) [[likely]] {
       up = std::sqrt(up);
       const auto [px,py,pz] = *this;
@@ -172,11 +175,11 @@ struct vec4 {
   constexpr vec4(double x, double y, double z, double t, XYZT_t) noexcept
   : v{x,y,z,t} { }
   vec4(double pt, double eta, double phi, double e, PtEtaPhiE_t) noexcept
-  : v3(pt,eta,phi) {
+  : v3(pt,eta,phi,vec3::PtEtaPhi_t{}) {
     v[3] = e;
   }
   vec4(double pt, double eta, double phi, double m, PtEtaPhiM_t) noexcept
-  : v3(pt,eta,phi) {
+  : v3(pt,eta,phi,vec3::PtEtaPhi_t{}) {
     v[3] = std::sqrt(
       m >= 0
       ? sq(v[0],v[1],v[2],m)
@@ -231,10 +234,10 @@ struct vec4 {
     return { x()/t(), y()/t(), z()/t() };
   }
   vec4& boost(const vec3& b) noexcept {
-    const auto b2 = b.norm2();
-    const auto bp = b*v3;
-    const auto gamma = 1. / std::sqrt(1.-b2);
-    const auto gamma2 = b2 > 0 ? (gamma-1.)/b2 : 0.;
+    const double b2 = b.norm2();
+    const double bp = b*v3;
+    const double gamma = 1. / std::sqrt(1.-b2);
+    const double gamma2 = b2 > 0 ? (gamma-1.)/b2 : 0.;
 
     v3 += (gamma2*bp + gamma*t())*b;
     (v[3] += bp) *= gamma;
@@ -286,7 +289,7 @@ constexpr vec4 operator+(const vec4& a, const vec4& b) noexcept
 constexpr vec4 operator-(const vec4& a, const vec4& b) noexcept
 { return { a[0]-b[0], a[1]-b[1], a[2]-b[2], a[3]-b[3] }; }
 
-constexpr auto operator*(const vec4& a, const vec4& b) noexcept
+constexpr double operator*(const vec4& a, const vec4& b) noexcept
 { return a[0]*b[0] + a[1]*b[1] + a[2]*b[2] - a[3]*b[3]; }
 
 constexpr vec4 operator*(const vec4& a, double b) noexcept
@@ -310,8 +313,8 @@ inline double pTt(const vec4& a, const vec4& b) noexcept {
 inline double dphi(double phi1, double phi2) noexcept {
   double _dphi = phi1 - phi2;
   if (_dphi < 0.) [[unlikely]] _dphi = -_dphi;
-  if (_dphi > pi) [[unlikely]]
-    return twopi - _dphi;
+  if (_dphi > num::pi) [[unlikely]]
+    return num::twopi - _dphi;
   else
     return _dphi;
 }
@@ -323,8 +326,8 @@ inline double dphi_signed(double phi1, double phi2, double rap1, double rap2)
 noexcept {
   double _dphi = phi1 - phi2;
   if (rap1 < rap2) _dphi = -_dphi;
-  while (_dphi >= pi) _dphi -= twopi;
-  while (_dphi < -pi) _dphi += twopi;
+  while (_dphi >= num::pi) _dphi -= num::twopi;
+  while (_dphi < -num::pi) _dphi += num::twopi;
   return _dphi;
 }
 inline double dphi_signed(const vec4& a, const vec4& b) noexcept {
