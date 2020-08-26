@@ -34,9 +34,9 @@
 #include "reweighter_json.hh"
 #include "Higgs2diphoton.hh"
 
-using namespace ivanp::map::operators;
+using namespace ivanp::cont::ops::map;
 
-template <ivanp::map::Container C>
+template <ivanp::cont::Container C>
 decltype(auto) operator+=(std::vector<auto,auto>& v, C&& r) {
   v.reserve(v.size()+ivanp::cont::size(r));
   std::forward<C>(r) | [&]<typename T>(T&& x){
@@ -55,18 +55,7 @@ using namespace ivanp;
 struct single_bin_axis {
   using edge_type = int;
   using index_type = ivanp::hist::index_type;
-
-  index_type nedges() const noexcept { return 0; }
-  index_type nbins() const noexcept { return 0; }
-
-  edge_type edge(index_type i) const noexcept { return 0; }
-
-  edge_type min() const noexcept { return 0; }
-  edge_type max() const noexcept { return 0; }
-
-  edge_type lower(index_type i) const noexcept { return 0; }
-  edge_type upper(index_type i) const noexcept { return 0; }
-
+  index_type nbins() const noexcept { return 1; }
   index_type find_bin_index(edge_type x) const noexcept { return 0; }
 };
 void to_json(nlohmann::json& j, const single_bin_axis& axis) noexcept {
@@ -76,8 +65,8 @@ void to_json(nlohmann::json& j, const single_bin_axis& axis) noexcept {
 using bin_t = ivanp::hist::nlo_mc_multibin;
 using hist_t = ivanp::hist::histogram<
   bin_t,
-  std::array<single_bin_axis,1>,
-  ivanp::hist::bins_container_spec<std::array<ivanp::hist::nlo_mc_multibin,1>>
+  ivanp::hist::axes_spec<std::array<single_bin_axis,1>>,
+  ivanp::hist::bins_spec<std::array<ivanp::hist::nlo_mc_multibin,1>>
 >;
 
 std::vector<std::string> weights_names;
