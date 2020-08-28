@@ -55,17 +55,17 @@ do
   fi
 done
 
-mkdir -p output/envelopes
+mkdir -p output/3d
 
 echo
-echo "envelopes"
+echo "3d"
 find output/merged -maxdepth 1 -type f -name '*.cbor' |
 sort -u |
 while read x
 do
-  out="$(sed 's:/merged/:/envelopes/:;s:\.cbor$:.json:' <<< "$x")"
+  out="$(sed 's:/merged/:/3d/:;s:\.cbor$:.json:' <<< "$x")"
   if [ ! -f "$out" ] || [ "$x" -nt "$out" ]; then
-    scripts/envelopes.py "$x" "$out" # 'HT1 CT14nlo'
+    scripts/3d.py "$x" "$out"
   fi
 done
 

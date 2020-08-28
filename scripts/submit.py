@@ -27,12 +27,10 @@ mkdirs(loc+'/condor',loc+'/output/jobs')
 
 def get(names,vals):
     fs = [ ( x[-1], x[0]+'/'+x[1], x[3],
-        '{}{}j{}_{:g}TeV_antikt{:g}_{}_{}'.format(
+        '{}{}j{}_{:g}TeV_antikt{:g}'.format(
             x[2], x[3], x[4],
             x[5],
-            config['jet_R']*10,
-            config['reweighting'][0]['pdf'],
-            config['reweighting'][0]['scale']
+            config['jet_R']*10
         )
     ) for x in db.execute('''
 SELECT dir,file,particle,njets,part,energy,info,nentries
