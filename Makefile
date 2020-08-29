@@ -25,7 +25,7 @@ LHAPDF_LDLIBS   := $(shell lhapdf-config --libs) -Wl,-rpath=$(LHAPDF_PREFIX)/lib
 
 #####################################################################
 
-all: bin/hist
+all: bin/hist bin/draw
 
 #####################################################################
 
@@ -36,6 +36,10 @@ bin/hist: .build/reweighter.o .build/Higgs2diphoton.o
 
 C_reweighter := $(ROOT_CPPFLAGS) $(LHAPDF_CPPFLAGS)
 C_Higgs2diphoton := $(ROOT_CPPFLAGS)
+
+C_draw := $(ROOT_CPPFLAGS) -I. -DNDEBUG
+LF_draw := $(ROOT_LDFLAGS)
+L_draw := $(ROOT_LDLIBS)
 
 #####################################################################
 
