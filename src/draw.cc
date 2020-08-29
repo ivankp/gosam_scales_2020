@@ -32,7 +32,7 @@ auto& opt(const auto&... k) {
 
 int main(int argc, char* argv[]) {
   if (argc<2) {
-    cout << "usage: " << argv[0] << " in.json [name]\n";
+    cout << "usage: " << argv[0] << " in.json [name] [save]\n";
     return 1;
   }
 
@@ -50,7 +50,9 @@ int main(int argc, char* argv[]) {
     xsec = data.at("xsec");
 
   int app_argc = 0;
-  TApplication app("app", &app_argc, nullptr);
+  TApplication* app = nullptr;
+  if (argc<4)
+    app = new TApplication("app", &app_argc, nullptr);
 
   opts = json::parse(std::ifstream("draw.json"));
 
@@ -59,26 +61,18 @@ int main(int argc, char* argv[]) {
   canv.SetLogy();
   canv.SetTheta(opt<double>("canv","theta"));
   canv.SetPhi(opt<double>("canv","phi"));
-  // canv.SetFrameLineColor(0);
 
   for (auto& x : xsec)
     if (x < 0.) x = 0.;
 
   TGraph2D g("","",xsec.size(),fac.data(),ren.data(),xsec.data());
-  // gStyle->SetPalette(kBlueGreenYellow);
-  // if (argc>3) {
-  //   g.Draw(argv[3]); // tri2
-  // } else {
-  //   g.SetMarkerStyle(20);
-  //   g.Draw("pcol");
-  // }
-  // TAxis* az = g.GetZaxis();
 
   const double max = *max_element(xsec.begin(),xsec.end());
 
   auto* h = g.GetHistogram();
   h->SetMinimum(0.);
   h->SetMaximum(max*1.05);
+  h->SetTitle(opt<json::string_t>("title").c_str());
 
   g.Draw(opt<json::string_t>("g","draw").c_str());
 
@@ -91,5 +85,8 @@ int main(int argc, char* argv[]) {
   }
   p.Draw(opt<json::string_t>("p","draw").c_str());
 
-  app.Run();
+  if (argc>3)
+    canv.SaveAs(argv[3]);
+  else
+    app->Run();
 }
