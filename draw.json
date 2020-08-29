@@ -1,0 +1,13 @@
+{
+  "canv": {
+    "theta": 29.98716,
+    "phi": 106.7675
+  },
+  "g": {
+    "draw": "tri2 FB"
+  },
+  "p": {
+    "draw": "p0 same FB"
+  },
+  "title": ";#mu_{F};#mu_{R};#sigma, pb"
+}
