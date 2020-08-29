@@ -140,12 +140,14 @@ int main(int argc, char* argv[]) {
   // Make reweighters
   auto reweighters = conf.at("reweighting") | [&](auto def){
     auto& ren_fac = def["ren_fac"];
-    const int max_pow = ren_fac;
+    const int step_div = ren_fac[1];
+    const int max = int(ren_fac[0])*step_div;
+    const double step = 1./step_div;
     std::vector<std::array<double,2>> scales;
-    scales.reserve(sq(max_pow*2+1));
-    for (int r = -max_pow; r<=max_pow; ++r)
-      for (int f = -max_pow; f<=max_pow; ++f)
-        scales.push_back({ std::exp2(r), std::exp2(f) });
+    scales.reserve(sq(max*2+1));
+    for (int r = -max; r<=max; ++r)
+      for (int f = -max; f<=max; ++f)
+        scales.push_back({ std::exp2(r*step), std::exp2(f*step) });
     ren_fac = scales;
 
     reweighter rew(reader,def);

@@ -8,12 +8,12 @@
     { "pdf": "CT14nlo",
       "pdf_var": false,
       "scale": "HT1",
-      "ren_fac": 4
+      "ren_fac": [4,4]
     },
     { "pdf": "CT14nlo",
       "pdf_var": false,
       "scale": "HT2",
-      "ren_fac": 4
+      "ren_fac": [4,4]
     }
   ]
 }
