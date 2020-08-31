@@ -10,6 +10,8 @@
 #include <TGraph2D.h>
 #include <TH2.h>
 
+#include <ivanp/cont/map.hh>
+
 #define STR1(x) #x
 #define STR(x) STR1(x)
 
@@ -21,13 +23,17 @@ using std::cout;
 using std::cerr;
 using std::endl;
 using nlohmann::json;
+using ivanp::cont::map;
 
 json opts;
-template <typename T>
+template <typename T = json>
 auto& opt(const auto&... k) {
   const json* x = &opts;
   ( ..., (x = &x->at(k)) );
-  return *x->get_ptr<const T*>();
+  if constexpr (std::is_same_v<T,json>)
+    return *x;
+  else
+    return *x->get_ptr<const T*>();
 }
 
 int main(int argc, char* argv[]) {
@@ -62,6 +68,10 @@ int main(int argc, char* argv[]) {
   canv.SetTheta(opt<double>("canv","theta"));
   canv.SetPhi(opt<double>("canv","phi"));
 
+  { std::array<double,4> m = opt("canv","margins");
+    canv.SetMargin(m[0],m[1],m[2],m[3]);
+  }
+
   for (auto& x : xsec)
     if (x < 0.) x = 0.;
 
@@ -72,7 +82,13 @@ int main(int argc, char* argv[]) {
   auto* h = g.GetHistogram();
   h->SetMinimum(0.);
   h->SetMaximum(max*1.05);
-  h->SetTitle(opt<json::string_t>("title").c_str());
+  h->SetTitle(opt<json::string_t>("title","title").c_str());
+  const std::array axes { h->GetXaxis(), h->GetYaxis(), h->GetZaxis() };
+  map([](auto* axis, double offset){
+    axis->SetTitleOffset(offset);
+  }, axes, opt("title","offset"));
+  axes[0]->CenterTitle();
+  axes[1]->CenterTitle();
 
   g.Draw(opt<json::string_t>("g","draw").c_str());
 
@@ -80,6 +96,7 @@ int main(int argc, char* argv[]) {
   for (unsigned i=0; i<xsec.size(); ++i) {
     if (fac[i]==1 && ren[i]==1) {
       p.SetPoint(0,fac[i],ren[i],xsec[i]);
+      cout << "σ0 = " << xsec[i] << endl;
       break;
     }
   }

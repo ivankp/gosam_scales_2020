@@ -1,7 +1,8 @@
 {
   "canv": {
     "theta": 29.98716,
-    "phi": 106.7675
+    "phi": 106.7675,
+    "margins": [ 0.09, 0.025, 0.08, 0.025 ]
   },
   "g": {
     "draw": "tri2 FB"
@@ -9,5 +10,8 @@
   "p": {
     "draw": "p0 same FB"
   },
-  "title": ";#mu_{F};#mu_{R};#sigma, pb"
+  "title": {
+    "title": ";#mu_{F}/#mu_{0};#mu_{R}/#mu_{0};#sigma, pb",
+    "offset": [ 1.6, 1.9, 1.2 ]
+  }
 }

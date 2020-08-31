@@ -1,6 +1,7 @@
 #!/bin/bash
 
 find output/3d -type f -name '*.json' |
+sed -rn '/H[123]j(B|NLO)_/p' |
 while read a
 do
   bin/draw "$a" |
