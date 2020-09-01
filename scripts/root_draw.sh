@@ -7,8 +7,9 @@ do
   bin/draw "$a" |
   while read b
   do
-    out="$(sed 's/\.json$//' <<< "$a")-$(sed 's/ /_/' <<< "$b").pdf"
+    out="$(sed 's/\.json$//' <<< "$a")-$(sed 's/ /_/' <<< "$b")"
     echo "$out"
-    bin/draw "$a" "$b" "$out"
+    bin/draw "$a" "$b" "${out}.eps"
+    inkscape --export-pdf="${out}.pdf" "${out}.eps"
   done
 done
